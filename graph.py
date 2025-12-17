@@ -10,6 +10,7 @@ class Grafo:
         self.num_arcos = 0
 
     def cargar(self, ruta_base:str):
+
         ruta_arcos = f"{ruta_base}.gr"
         ruta_vertices = f"{ruta_base}.co"
 
@@ -57,7 +58,7 @@ class Grafo:
         return self.vertices.get(nodo, [])
 
     # Devuelve las coordenadas de un nodo
-    def coordenadas(self, nodo: int):
+    def obtener_coordenadas(self, nodo: int):
         return self.coordenadas[nodo]
     
     # Devuelve el número de vértices
