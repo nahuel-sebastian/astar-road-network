@@ -36,22 +36,29 @@ def leer_instancia(ruta_fichero):
     return n, tablero_inicial, lineas_raw
 
 def escribir_tablero(stream, n, datos_tablero):
-   
-    if isinstance(datos_tablero, list):
-        for linea in datos_tablero:
-            stream.write(linea + "\n")
-    else:
-        for r in range(n):
-            fila_str = ""
-            for c in range(n):
-                val = datos_tablero.get((r, c))
-                if val == 1:
-                    fila_str += "X"
-                elif val == 0:
-                    fila_str += "O"
-                else:
-                    fila_str += "." 
-            stream.write(fila_str + "\n")
+    separador = "+---" * n + "+\n"
+    stream.write(separador)
+    
+    for r in range(n):
+        linea_contenido = "|"
+        for c in range(n):
+            # Obtenemos el valor según el formato de tus datos
+            if isinstance(datos_tablero, list):
+                # Si datos_tablero es una lista de strings (instancia original)
+                val = datos_tablero[r][c]
+            else:
+                # Si datos_tablero es un diccionario (solución de python-constraint)
+                val_raw = datos_tablero.get((r, c))
+                if val_raw == 1: val = "X"
+                elif val_raw == 0: val = "O"
+                else: val = " " # Espacio para celdas vacías en la instancia
+
+            # En la instancia, el '.' debe verse como un espacio vacío ' ' [cite: 27]
+            char = " " if val == "." else val
+            linea_contenido += f" {char} |"
+        
+        stream.write(linea_contenido + "\n")
+        stream.write(separador)
 
 def restriccion_no_tres_consecutivos(a, b, c):
     """Devuelve False si los tres valores son idénticos (ej: 0,0,0 o 1,1,1)"""
@@ -114,9 +121,9 @@ def resolver(fichero_entrada, fichero_salida):
     num_soluciones = len(soluciones)
 
     # 7. Salida por Pantalla
-    print("Instancia a resolver:")
+   
     escribir_tablero(sys.stdout, n, lineas_raw)
-    print(f"\n{num_soluciones} soluciones encontradas")
+    print(f"{num_soluciones} soluciones encontradas.")
 
     # 8. Salida a Fichero
     with open(fichero_salida, 'w') as f:
@@ -126,12 +133,8 @@ def resolver(fichero_entrada, fichero_salida):
         # Separador visual (opcional pero recomendado para claridad)
         f.write("\n")
         
-        if num_soluciones > 0:
-            # Escribir TODAS las soluciones encontradas
-            for i, sol in enumerate(soluciones):
-                if i > 0:
-                    f.write("\n") # Separator between solutions
-                escribir_tablero(f, n, sol)
+        if soluciones:
+            escribir_tablero(f, n, soluciones[0])
         else:
             f.write("No se encontró solución factible.")
 

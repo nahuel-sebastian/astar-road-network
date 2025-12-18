@@ -2,6 +2,7 @@ from abierta import Abierta
 from cerrada import Cerrada
 from graph import Grafo
 import time
+import math
 
 class AlgoritmoCaminoMinimo:
     def __init__(self, grafo, origen: int, destino: int):
@@ -15,16 +16,17 @@ class AlgoritmoCaminoMinimo:
         lista_cerrada = Cerrada()
         nodos_expandidos = 0
         tiempo_inicio = time.time()
+        g = {self.origen: 0}
         h = {}
         f = {}
 
         lista_abierta.insertar(self.origen, 0)
 
 
-        g = {self.origen: 0}
+       
         lista_padres[self.origen] = None
         if usar_heuristica:
-            h[self.origen] = self.distancia_euclidea(self.origen, self.destino)
+            h[self.origen] = self.distancia_haversine(self.origen, self.destino)
         else:
             h[self.origen] = 0
         f[self.origen] = g[self.origen] + h[self.origen]
@@ -59,7 +61,7 @@ class AlgoritmoCaminoMinimo:
                     lista_padres[vecino] = v_actual
 
                     if usar_heuristica:
-                        h[vecino] = self.distancia_euclidea(vecino, self.destino)
+                        h[vecino] = self.distancia_haversine(vecino, self.destino)
                     else:
                         h[vecino] = 0
                     f[vecino] = g[vecino] + h[vecino]
@@ -76,13 +78,15 @@ class AlgoritmoCaminoMinimo:
             camino.append(v_actual)
             v_actual = lista_padres[v_actual]
         return camino[::-1]
-    def distancia_euclidea(self, nodo1, nodo2):
-        lat1 = self.grafo.obtener_coordenadas(nodo1)[1]
-        lon1 = self.grafo.obtener_coordenadas(nodo1)[0]
-        lat2 = self.grafo.obtener_coordenadas(nodo2)[1]
-        lon2 = self.grafo.obtener_coordenadas(nodo2)[0]
-        return (((lon1 - lon2) ** 2 + (lat1 - lat2) ** 2) ** 0.5) * 100000
-
+    def distancia_haversine(self, n1, n2):
+        lon1, lat1 = self.grafo.obtener_coordenadas(n1)
+        lon2, lat2 = self.grafo.obtener_coordenadas(n2)
+        r = 6371000 # Radio Tierra en metros
+        phi1, phi2 = math.radians(lat1), math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlam = math.radians(lon2 - lon1)
+        a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlam/2)**2
+        return 2 * r * math.atan2(math.sqrt(a), math.sqrt(1-a))
     
 
     def ejecutarDijkstra(self):
