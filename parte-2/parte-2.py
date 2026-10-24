@@ -17,6 +17,11 @@ def comprobar_entrada(v1, v2, fichero_entrada, fichero_salida):
     grafo = Grafo()
     grafo.cargar(fichero_entrada)
 
+    for v in (vertice_1, vertice_2):
+        if v not in grafo.coordenadas:
+            print(f"Error: el vértice {v} no existe en el mapa")
+            sys.exit(1)
+
     algoritmo = AlgoritmoCaminoMinimo(grafo, vertice_1, vertice_2)
 
 
@@ -33,6 +38,10 @@ def comprobar_entrada(v1, v2, fichero_entrada, fichero_salida):
     print(f"tiempo total en dijkstra: {tiempo_dijkstra}")
     print(f"nodos expandidos en A*: {expandidos_astar}")
     print(f"tiempo total en A*: {tiempo_astar}")
+
+    if camino_dijkstra is None:
+        print("No existe camino entre los dos vértices")
+        sys.exit(1)
 
     # Suponiendo que 'camino' es la lista [1, 308, 309] devuelta por reconstruir_camino
     if camino_dijkstra:
