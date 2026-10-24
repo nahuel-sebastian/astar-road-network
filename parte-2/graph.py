@@ -1,4 +1,15 @@
+import gzip
+import os
 import sys
+
+
+def abrir(ruta: str):
+    # Abre el fichero tal cual o, si no existe, su versión comprimida .gz
+    if not os.path.exists(ruta) and os.path.exists(ruta + ".gz"):
+        return gzip.open(ruta + ".gz", "rt")
+    return open(ruta, "r")
+
+
 class Grafo:
     
     def __init__(self):
@@ -16,7 +27,7 @@ class Grafo:
 
         # Leer vertices con sus coordenadas
         try:
-            with open(ruta_vertices, "r") as f:
+            with abrir(ruta_vertices) as f:
                 for linea in f:
                     linea = linea.strip()
                     if not linea or not linea.startswith("v "):
@@ -35,7 +46,7 @@ class Grafo:
 
         # Leer arcos entre vertices y su coste
         try:
-            with open(ruta_arcos, "r") as f:
+            with abrir(ruta_arcos) as f:
                 for linea in f:
                     linea = linea.strip()
                     if not linea or not linea.startswith("a "):
