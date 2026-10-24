@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+# Grafos descomprimidos (se usan los .gz de data/)
+*.gr
+*.co
