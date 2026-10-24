@@ -5,10 +5,27 @@ import time
 import math
 
 class AlgoritmoCaminoMinimo:
-    def __init__(self, grafo, origen: int, destino: int):
+    def __init__(self, grafo, origen: int, destino: int, factor_heuristica=None):
         self.grafo = grafo
         self.origen = origen
         self.destino = destino
+        if factor_heuristica is None:
+            factor_heuristica = self.calcular_factor_heuristica()
+        self.factor_heuristica = factor_heuristica
+
+    def calcular_factor_heuristica(self):
+        # Los costes de los arcos no están en metros (en los grafos USA-road-d son
+        # decímetros), así que la distancia haversine en metros se queda corta.
+        # Se escala por el menor cociente coste/distancia de todos los arcos: así
+        # h nunca supera el coste real de un arco y, por la desigualdad triangular,
+        # la heurística sigue siendo admisible y consistente.
+        factor = math.inf
+        for v, arcos in self.grafo.vertices.items():
+            for vecino, coste in arcos:
+                distancia = self.distancia_haversine(v, vecino)
+                if distancia > 0:
+                    factor = min(factor, coste / distancia)
+        return factor if factor != math.inf else 0
     def resolver(self, usar_heuristica: bool):
         
         lista_padres = {}
@@ -26,7 +43,7 @@ class AlgoritmoCaminoMinimo:
        
         lista_padres[self.origen] = None
         if usar_heuristica:
-            h[self.origen] = self.distancia_haversine(self.origen, self.destino)
+            h[self.origen] = self.factor_heuristica * self.distancia_haversine(self.origen, self.destino)
         else:
             h[self.origen] = 0
         f[self.origen] = g[self.origen] + h[self.origen]
@@ -61,7 +78,7 @@ class AlgoritmoCaminoMinimo:
                     lista_padres[vecino] = v_actual
 
                     if usar_heuristica:
-                        h[vecino] = self.distancia_haversine(vecino, self.destino)
+                        h[vecino] = self.factor_heuristica * self.distancia_haversine(vecino, self.destino)
                     else:
                         h[vecino] = 0
                     f[vecino] = g[vecino] + h[vecino]
